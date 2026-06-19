@@ -78,7 +78,7 @@ class AppTheme {
           ),
           iconTheme: IconThemeData(color: textPrimary),
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           color: cardColor,
           elevation: 0,
           shape: RoundedRectangleBorder(
@@ -116,12 +116,12 @@ class AppTheme {
 
   // ─── Decorations ────────────────────────────────────────────
   static BoxDecoration get glassCard => BoxDecoration(
-        color: cardColor.withOpacity(0.8),
+        color: cardColor.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: divider, width: 0.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -131,10 +131,10 @@ class AppTheme {
   static BoxDecoration get glowingCard => BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: primary.withOpacity(0.3), width: 1),
+        border: Border.all(color: primary.withValues(alpha: 0.3), width: 1),
         boxShadow: [
           BoxShadow(
-            color: primary.withOpacity(0.1),
+            color: primary.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),

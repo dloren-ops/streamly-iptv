@@ -246,7 +246,7 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: AppTheme.primary.withOpacity(0.15),
+            color: AppTheme.primary.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(8),
           ),
           alignment: Alignment.center,
@@ -276,7 +276,7 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
         onTap: () async {
           final provider = context.read<VodProvider>();
           final url = await provider.episodeUrl(episode);
-          if (url != null && context.mounted) {
+          if (url != null && mounted) {
             Navigator.push(
               context,
               MaterialPageRoute(

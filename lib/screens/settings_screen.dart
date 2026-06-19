@@ -308,7 +308,7 @@ class SettingsScreen extends StatelessWidget {
       subtitle: Text(subtitle, style: const TextStyle(color: AppTheme.textMuted, fontSize: 12)),
       value: value,
       onChanged: onChanged,
-      activeColor: AppTheme.primary,
+      activeThumbColor: AppTheme.primary,
     );
   }
 

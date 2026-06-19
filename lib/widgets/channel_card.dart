@@ -59,12 +59,12 @@ class ChannelCard extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.primary.withOpacity(0.15),
+                          color: AppTheme.primary.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           channel.group!,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: AppTheme.primaryLight,
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
@@ -111,7 +111,7 @@ class ChannelCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
               decoration: BoxDecoration(
-                color: AppTheme.error.withOpacity(0.9),
+                color: AppTheme.error.withValues(alpha: 0.9),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: const Text(

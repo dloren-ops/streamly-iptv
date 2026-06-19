@@ -46,7 +46,7 @@ class FavoritesScreen extends StatelessWidget {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.primary.withOpacity(0.15),
+                          color: AppTheme.primary.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
