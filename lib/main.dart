@@ -20,7 +20,7 @@ void main() async {
   await StorageService.init();
 
   // Set system UI style
-  SystemChrome.setSystemUiOverlayStyle(const SystemUiOverlayStyle(
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.light,
     systemNavigationBarColor: AppTheme.background,
