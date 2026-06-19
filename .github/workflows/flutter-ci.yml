@@ -80,22 +80,46 @@ jobs:
 
       - name: Pin Android compileSdk to 36
         # Some transitive plugins (e.g. flutter_plugin_android_lifecycle) now
-        # require compiling against API 36. The generated Gradle files default
-        # lower, so bump compileSdk here after the platform folders are created.
+        # require compiling against API 36. Force compileSdk=36 across the app
+        # AND every plugin subproject by appending an override to the root Gradle.
         run: |
-          KTS=android/app/build.gradle.kts
-          GROOVY=android/app/build.gradle
-          if [ -f "$KTS" ]; then
-            sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 36/' "$KTS"
-            sed -i 's/compileSdk = [0-9][0-9]*/compileSdk = 36/' "$KTS"
-            echo "Patched (kts):"; grep -n "compileSdk" "$KTS" || true
-          fi
-          if [ -f "$GROOVY" ]; then
-            sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 36/' "$GROOVY"
-            sed -i 's/compileSdk flutter.compileSdkVersion/compileSdk 36/' "$GROOVY"
-            sed -i 's/compileSdk [0-9][0-9]*/compileSdk 36/' "$GROOVY"
-            sed -i 's/compileSdkVersion [0-9][0-9]*/compileSdkVersion 36/' "$GROOVY"
-            echo "Patched (groovy):"; grep -n "compileSdk" "$GROOVY" || true
+          APP_KTS=android/app/build.gradle.kts
+          APP_GROOVY=android/app/build.gradle
+          ROOT_KTS=android/build.gradle.kts
+          ROOT_GROOVY=android/build.gradle
+
+          # App module
+          [ -f "$APP_KTS" ] && sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 36/' "$APP_KTS"
+          [ -f "$APP_GROOVY" ] && sed -i 's/compileSdk flutter.compileSdkVersion/compileSdk 36/' "$APP_GROOVY"
+
+          # Force every subproject (incl. plugins) to compileSdk 36
+          if [ -f "$ROOT_KTS" ]; then
+            cat >> "$ROOT_KTS" <<'EOF'
+
+subprojects {
+    afterEvaluate {
+        val androidExtension = extensions.findByName("android")
+        if (androidExtension is com.android.build.gradle.BaseExtension) {
+            androidExtension.compileSdkVersion(36)
+        }
+    }
+}
+EOF
+            echo "Appended subprojects override to $ROOT_KTS"
+          elif [ -f "$ROOT_GROOVY" ]; then
+            cat >> "$ROOT_GROOVY" <<'EOF'
+
+subprojects {
+    afterEvaluate { proj ->
+        if (proj.hasProperty('android')) {
+            proj.android {
+                compileSdkVersion 36
+            }
+        }
+    }
+}
+EOF
+            echo "Appended subprojects override to $ROOT_GROOVY"
           fi
 
       - name: Build release APK
