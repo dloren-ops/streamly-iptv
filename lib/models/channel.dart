@@ -7,6 +7,10 @@ class Channel {
   final String? group;
   final String? language;
   final String? country;
+
+  /// EPG channel id (tvg-id) used to match XMLTV programs
+  final String? epgChannelId;
+
   bool isFavorite;
 
   Channel({
@@ -17,6 +21,7 @@ class Channel {
     this.group,
     this.language,
     this.country,
+    this.epgChannelId,
     this.isFavorite = false,
   });
 
@@ -34,6 +39,7 @@ class Channel {
       group: attributes?['group-title'],
       language: attributes?['tvg-language'],
       country: attributes?['tvg-country'],
+      epgChannelId: attributes?['tvg-id'],
     );
   }
 
@@ -46,6 +52,7 @@ class Channel {
         'group': group,
         'language': language,
         'country': country,
+        'epgChannelId': epgChannelId,
         'isFavorite': isFavorite,
       };
 
@@ -58,6 +65,7 @@ class Channel {
         group: json['group'],
         language: json['language'],
         country: json['country'],
+        epgChannelId: json['epgChannelId'],
         isFavorite: json['isFavorite'] ?? false,
       );
 

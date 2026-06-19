@@ -1,0 +1,87 @@
+name: Flutter CI
+
+# Run on pushes and PRs targeting main
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel older runs of the same branch/PR when a new commit arrives
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Show Flutter version
+        run: flutter --version
+
+      - name: Generate platform folders
+        run: flutter create .
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting (informational)
+        continue-on-error: true
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze project source
+        run: flutter analyze
+
+      - name: Run tests (if any exist)
+        run: |
+          if ls test/*_test.dart >/dev/null 2>&1; then
+            flutter test
+          else
+            echo "No test files found, skipping."
+          fi
+
+  build-android:
+    name: Build Android APK
+    needs: analyze
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Generate platform folders
+        run: flutter create .
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build release APK
+        run: flutter build apk --release
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: streamly-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error

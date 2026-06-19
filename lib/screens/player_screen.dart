@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:provider/provider.dart';
 import '../models/channel.dart';
+import '../providers/channel_provider.dart';
 import '../theme/app_theme.dart';
 
 /// Full-screen video player with minimal, elegant controls
@@ -179,6 +181,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                       fontSize: 13,
                     ),
                   ),
+                _buildEpgInfo(),
               ],
             ),
           ),
@@ -208,6 +211,64 @@ class _PlayerScreenState extends State<PlayerScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildEpgInfo() {
+    return Consumer<ChannelProvider>(
+      builder: (context, provider, _) {
+        final current = provider.currentProgram(widget.channel);
+        final next = provider.nextProgram(widget.channel);
+        if (current == null && next == null) return const SizedBox.shrink();
+
+        return Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (current != null) ...[
+                Text(
+                  '${current.timeRange}  ·  ${current.title}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(2),
+                  child: SizedBox(
+                    width: 220,
+                    child: LinearProgressIndicator(
+                      value: current.progress,
+                      minHeight: 3,
+                      backgroundColor: Colors.white24,
+                      valueColor:
+                          const AlwaysStoppedAnimation(AppTheme.primary),
+                    ),
+                  ),
+                ),
+              ],
+              if (next != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    'Next: ${next.title}',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.6),
+                      fontSize: 12,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 
