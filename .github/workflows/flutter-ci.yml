@@ -78,6 +78,26 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Pin Android compileSdk to 36
+        # Some transitive plugins (e.g. flutter_plugin_android_lifecycle) now
+        # require compiling against API 36. The generated Gradle files default
+        # lower, so bump compileSdk here after the platform folders are created.
+        run: |
+          KTS=android/app/build.gradle.kts
+          GROOVY=android/app/build.gradle
+          if [ -f "$KTS" ]; then
+            sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 36/' "$KTS"
+            sed -i 's/compileSdk = [0-9][0-9]*/compileSdk = 36/' "$KTS"
+            echo "Patched (kts):"; grep -n "compileSdk" "$KTS" || true
+          fi
+          if [ -f "$GROOVY" ]; then
+            sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 36/' "$GROOVY"
+            sed -i 's/compileSdk flutter.compileSdkVersion/compileSdk 36/' "$GROOVY"
+            sed -i 's/compileSdk [0-9][0-9]*/compileSdk 36/' "$GROOVY"
+            sed -i 's/compileSdkVersion [0-9][0-9]*/compileSdkVersion 36/' "$GROOVY"
+            echo "Patched (groovy):"; grep -n "compileSdk" "$GROOVY" || true
+          fi
+
       - name: Build release APK
         run: flutter build apk --release
 
