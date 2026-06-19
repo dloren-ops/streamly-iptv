@@ -7,15 +7,30 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
-import 'package:streamly_iptv/main.dart';
+import 'package:streamly_iptv/providers/channel_provider.dart';
+import 'package:streamly_iptv/providers/vod_provider.dart';
+import 'package:streamly_iptv/screens/login_screen.dart';
 
 void main() {
-  testWidgets('App smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const IPTVApp());
+  testWidgets('App smoke test - LoginScreen renders', (WidgetTester tester) async {
+    // Pump LoginScreen directly inside a MaterialApp with required providers,
+    // bypassing StorageService.isLoggedIn() which needs Hive initialization.
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => ChannelProvider()),
+          ChangeNotifierProvider(create: (_) => VodProvider()),
+        ],
+        child: const MaterialApp(
+          home: LoginScreen(),
+        ),
+      ),
+    );
 
     // Verify that the app builds without crashing.
     expect(find.byType(MaterialApp), findsOneWidget);
+    expect(find.byType(LoginScreen), findsOneWidget);
   });
 }
