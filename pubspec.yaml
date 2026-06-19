@@ -38,8 +38,8 @@ dependencies:
   shimmer: ^3.0.0
   google_fonts: ^6.1.0
   
-  # File picker (for loading M3U files)
-  file_picker: ^6.1.1
+  # File picker (for loading M3U files) - 8.x removes the legacy v1 embedding
+  file_picker: ^8.1.2
 
 dev_dependencies:
   flutter_test:
