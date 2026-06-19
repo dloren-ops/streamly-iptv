@@ -51,12 +51,12 @@ class _MainNavigationState extends State<MainNavigation> {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.surface,
-        border: Border(
+        border: const Border(
           top: BorderSide(color: AppTheme.divider, width: 0.5),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
@@ -91,7 +91,7 @@ class _MainNavigationState extends State<MainNavigation> {
           margin: const EdgeInsets.symmetric(horizontal: 4),
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
-            color: isActive ? AppTheme.primary.withOpacity(0.15) : Colors.transparent,
+            color: isActive ? AppTheme.primary.withValues(alpha: 0.15) : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(

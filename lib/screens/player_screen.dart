@@ -110,10 +110,10 @@ class _PlayerScreenState extends State<PlayerScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.black.withOpacity(0.7),
+            Colors.black.withValues(alpha: 0.7),
             Colors.transparent,
             Colors.transparent,
-            Colors.black.withOpacity(0.7),
+            Colors.black.withValues(alpha: 0.7),
           ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -146,7 +146,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
+                color: Colors.black.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
@@ -177,7 +177,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   Text(
                     widget.channel.group!,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       fontSize: 13,
                     ),
                   ),
@@ -190,7 +190,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: AppTheme.error.withOpacity(0.9),
+              color: AppTheme.error.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(6),
             ),
             child: const Row(
@@ -258,7 +258,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   child: Text(
                     'Next: ${next.title}',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
+                      color: Colors.white.withValues(alpha: 0.6),
                       fontSize: 12,
                     ),
                     maxLines: 1,
@@ -292,7 +292,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primary.withOpacity(0.4),
+                        color: AppTheme.primary.withValues(alpha: 0.4),
                         blurRadius: 16,
                       ),
                     ],
