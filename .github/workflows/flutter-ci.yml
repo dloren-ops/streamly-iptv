@@ -40,7 +40,9 @@ jobs:
         run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze project source
-        run: flutter analyze
+        # Errors and warnings fail the build; info-level lints (e.g. deprecation
+        # hints, prefer_const) are reported but non-fatal to stay SDK-flexible.
+        run: flutter analyze --no-fatal-infos
 
       - name: Run tests (if any exist)
         run: |
