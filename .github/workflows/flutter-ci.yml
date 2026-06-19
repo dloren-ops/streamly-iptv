@@ -37,8 +37,21 @@ jobs:
 
       - name: Force compileSdk 36 for all modules
         run: |
-          find android -name "build.gradle.kts" -exec grep -l "compileSdk" {} \; | xargs sed -i 's/compileSdk = [0-9]*/compileSdk = 36/g'
-          find android -name "build.gradle" -exec grep -l "compileSdk" {} \; | xargs sed -i 's/compileSdk [0-9]*/compileSdk 36/g; s/compileSdkVersion [0-9]*/compileSdkVersion 36/g'
+          cat >> android/build.gradle.kts << 'EOF'
+
+          allprojects {
+              plugins.withId("com.android.library") {
+                  extensions.configure<com.android.build.gradle.LibraryExtension> {
+                      compileSdk = 36
+                  }
+              }
+              plugins.withId("com.android.application") {
+                  extensions.configure<com.android.build.gradle.AppExtension> {
+                      compileSdk = 36
+                  }
+              }
+          }
+          EOF
 
       - name: Install dependencies
         run: flutter pub get
@@ -86,8 +99,21 @@ jobs:
 
       - name: Force compileSdk 36 for all modules
         run: |
-          find android -name "build.gradle.kts" -exec grep -l "compileSdk" {} \; | xargs sed -i 's/compileSdk = [0-9]*/compileSdk = 36/g'
-          find android -name "build.gradle" -exec grep -l "compileSdk" {} \; | xargs sed -i 's/compileSdk [0-9]*/compileSdk 36/g; s/compileSdkVersion [0-9]*/compileSdkVersion 36/g'
+          cat >> android/build.gradle.kts << 'EOF'
+
+          allprojects {
+              plugins.withId("com.android.library") {
+                  extensions.configure<com.android.build.gradle.LibraryExtension> {
+                      compileSdk = 36
+                  }
+              }
+              plugins.withId("com.android.application") {
+                  extensions.configure<com.android.build.gradle.AppExtension> {
+                      compileSdk = 36
+                  }
+              }
+          }
+          EOF
 
       - name: Install dependencies
         run: flutter pub get
