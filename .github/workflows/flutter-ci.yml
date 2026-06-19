@@ -30,10 +30,18 @@ jobs:
         run: flutter --version
 
       - name: Generate platform folders
-        run: flutter create .
+        run: |
+          rm -rf android ios web linux macos windows
+          flutter create .
+          git checkout -- android/app/src/main/AndroidManifest.xml
 
       - name: Set compileSdk to 36
-        run: sed -i 's/compileSdk.*/compileSdk = 36/' android/app/build.gradle
+        run: |
+          if [ -f android/app/build.gradle ]; then
+            sed -i 's/compileSdk.*/compileSdk = 36/' android/app/build.gradle
+          elif [ -f android/app/build.gradle.kts ]; then
+            sed -i 's/compileSdk.*/compileSdk = 36/' android/app/build.gradle.kts
+          fi
 
       - name: Install dependencies
         run: flutter pub get
@@ -74,10 +82,18 @@ jobs:
           cache: true
 
       - name: Generate platform folders
-        run: flutter create .
+        run: |
+          rm -rf android ios web linux macos windows
+          flutter create .
+          git checkout -- android/app/src/main/AndroidManifest.xml
 
       - name: Set compileSdk to 36
-        run: sed -i 's/compileSdk.*/compileSdk = 36/' android/app/build.gradle
+        run: |
+          if [ -f android/app/build.gradle ]; then
+            sed -i 's/compileSdk.*/compileSdk = 36/' android/app/build.gradle
+          elif [ -f android/app/build.gradle.kts ]; then
+            sed -i 's/compileSdk.*/compileSdk = 36/' android/app/build.gradle.kts
+          fi
 
       - name: Install dependencies
         run: flutter pub get
