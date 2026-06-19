@@ -32,6 +32,9 @@ jobs:
       - name: Generate platform folders
         run: flutter create .
 
+      - name: Set compileSdk to 36
+        run: sed -i 's/compileSdk.*/compileSdk = 36/' android/app/build.gradle
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -72,6 +75,9 @@ jobs:
 
       - name: Generate platform folders
         run: flutter create .
+
+      - name: Set compileSdk to 36
+        run: sed -i 's/compileSdk.*/compileSdk = 36/' android/app/build.gradle
 
       - name: Install dependencies
         run: flutter pub get
