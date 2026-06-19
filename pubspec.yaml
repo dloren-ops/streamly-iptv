@@ -1,5 +1,5 @@
-name: iptv_app
-description: A lightweight and fast IPTV player app
+name: streamly_iptv
+description: A lightweight and fast IPTV player app (Live TV, Movies & Series)
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -25,26 +25,26 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   
+  # Secure storage (for credentials)
+  flutter_secure_storage: ^9.0.0
+  
+  # XML parsing (for EPG / XMLTV)
+  xml: ^6.5.0
+  
   # Image caching
   cached_network_image: ^3.3.1
   
   # UI utilities
   shimmer: ^3.0.0
   google_fonts: ^6.1.0
-  flutter_staggered_animations: ^1.1.1
   
   # File picker (for loading M3U files)
   file_picker: ^6.1.1
-  
-  # Icons
-  iconsax: ^0.0.8
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.1
-  hive_generator: ^2.0.1
-  build_runner: ^2.4.7
 
 flutter:
   uses-material-design: true

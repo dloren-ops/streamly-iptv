@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/channel_provider.dart';
+import '../providers/vod_provider.dart';
 import '../services/storage_service.dart';
 import '../theme/app_theme.dart';
 import 'login_screen.dart';
@@ -92,6 +93,7 @@ class SettingsScreen extends StatelessWidget {
                               if (confirm == true && context.mounted) {
                                 await context.read<ChannelProvider>().logout();
                                 if (context.mounted) {
+                                  context.read<VodProvider>().clear();
                                   Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(

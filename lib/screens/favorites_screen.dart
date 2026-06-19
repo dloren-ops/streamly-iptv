@@ -84,6 +84,7 @@ class FavoritesScreen extends StatelessWidget {
                         final channel = favorites[index];
                         return ChannelCard(
                           channel: channel,
+                          nowPlaying: provider.currentProgram(channel),
                           onTap: () {
                             provider.setCurrentChannel(channel);
                             Navigator.push(

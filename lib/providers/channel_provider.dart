@@ -1,14 +1,17 @@
 import 'package:flutter/foundation.dart';
 import '../models/channel.dart';
+import '../models/epg_program.dart';
 import '../services/playlist_service.dart';
 import '../services/storage_service.dart';
 import '../services/xtream_service.dart';
+import '../services/epg_service.dart';
 
 /// State management for channels using Provider pattern
 /// This is the "brain" layer - manages state without knowing about UI
 class ChannelProvider extends ChangeNotifier {
   final PlaylistService _playlistService = PlaylistService();
   final XtreamService _xtreamService = XtreamService();
+  final EpgService _epgService = EpgService();
 
   // ─── State ──────────────────────────────────────────────────
   List<Channel> _allChannels = [];
@@ -38,6 +41,19 @@ class ChannelProvider extends ChangeNotifier {
   XtreamAccount? get account => _account;
   bool get isRefreshing => _isRefreshing;
   bool get isLoggedIn => StorageService.isLoggedIn();
+  bool get hasEpg => _epgService.hasData;
+
+  /// Current program airing on a channel (from EPG)
+  EpgProgram? currentProgram(Channel channel) =>
+      _epgService.getCurrentProgram(channel.epgChannelId);
+
+  /// Next program on a channel (from EPG)
+  EpgProgram? nextProgram(Channel channel) =>
+      _epgService.getNextProgram(channel.epgChannelId);
+
+  /// Full upcoming schedule for a channel (from EPG)
+  List<EpgProgram> schedule(Channel channel) =>
+      _epgService.getSchedule(channel.epgChannelId);
 
   // ─── Actions ────────────────────────────────────────────────
 
@@ -117,6 +133,14 @@ class ChannelProvider extends ChangeNotifier {
       await StorageService.saveSourceUrl(m3uUrl);
 
       _error = null;
+
+      // Load EPG in the background (don't block login)
+      _loadEpg(
+        serverUrl: serverUrl,
+        username: username,
+        password: password,
+      );
+
       return true;
     } catch (e) {
       _error = e.toString();
@@ -129,7 +153,7 @@ class ChannelProvider extends ChangeNotifier {
 
   /// Refresh/update channels from the saved source (the "update" button)
   Future<void> refresh() async {
-    final sourceUrl = StorageService.getSourceUrl();
+    final sourceUrl = await StorageService.getSourceUrl();
     if (sourceUrl == null) {
       _error = 'No source to refresh. Please log in first.';
       notifyListeners();
@@ -179,6 +203,35 @@ class ChannelProvider extends ChangeNotifier {
 
     // Then refresh in the background
     await refresh();
+
+    // Load EPG from saved credentials
+    final creds = await StorageService.getCredentials();
+    if (creds != null) {
+      _loadEpg(
+        serverUrl: creds['server_url']!,
+        username: creds['username']!,
+        password: creds['password']!,
+      );
+    }
+  }
+
+  /// Load EPG data in the background (non-blocking)
+  Future<void> _loadEpg({
+    required String serverUrl,
+    required String username,
+    required String password,
+  }) async {
+    try {
+      final epgUrl = EpgService.buildEpgUrl(
+        serverUrl: serverUrl,
+        username: username,
+        password: password,
+      );
+      await _epgService.loadFromUrl(epgUrl);
+      notifyListeners();
+    } catch (_) {
+      // EPG is optional; ignore failures silently
+    }
   }
 
   /// Load from local cache

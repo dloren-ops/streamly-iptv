@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../models/channel.dart';
+import '../models/epg_program.dart';
 import '../theme/app_theme.dart';
 
-/// Beautiful channel card widget with logo, name, and category
+/// Beautiful channel card widget with logo, name, category and EPG "now playing"
 class ChannelCard extends StatelessWidget {
   final Channel channel;
   final VoidCallback onTap;
   final VoidCallback onFavorite;
+  final EpgProgram? nowPlaying;
 
   const ChannelCard({
     super.key,
     required this.channel,
     required this.onTap,
     required this.onFavorite,
+    this.nowPlaying,
   });
 
   @override
@@ -47,7 +50,9 @@ class ChannelCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    if (channel.group != null && channel.group!.isNotEmpty)
+                    if (nowPlaying != null)
+                      _buildNowPlaying()
+                    else if (channel.group != null && channel.group!.isNotEmpty)
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
@@ -93,6 +98,57 @@ class ChannelCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildNowPlaying() {
+    final program = nowPlaying!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+              decoration: BoxDecoration(
+                color: AppTheme.error.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Text(
+                'NOW',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 8,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                program.title,
+                style: const TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(2),
+          child: LinearProgressIndicator(
+            value: program.progress,
+            minHeight: 3,
+            backgroundColor: AppTheme.surfaceLight,
+            valueColor: const AlwaysStoppedAnimation(AppTheme.primary),
+          ),
+        ),
+      ],
     );
   }
 

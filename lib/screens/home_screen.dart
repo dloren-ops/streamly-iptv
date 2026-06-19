@@ -214,6 +214,7 @@ class HomeScreen extends StatelessWidget {
             final channel = provider.channels[index];
             return ChannelCard(
               channel: channel,
+              nowPlaying: provider.currentProgram(channel),
               onTap: () {
                 provider.setCurrentChannel(channel);
                 Navigator.push(

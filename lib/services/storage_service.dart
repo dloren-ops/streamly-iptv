@@ -1,13 +1,26 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/channel.dart';
 
-/// Local storage service using Hive for fast, lightweight persistence
+/// Local storage service using Hive for fast, lightweight persistence.
+/// Sensitive data (credentials, source URL with password) is kept in the
+/// platform secure storage (Keychain / Keystore) instead of plain Hive.
 class StorageService {
   static const String _channelsBox = 'channels';
   static const String _favoritesBox = 'favorites';
   static const String _settingsBox = 'settings';
   static const String _playlistsBox = 'playlists';
-  static const String _credentialsBox = 'credentials';
+
+  /// Secure storage for sensitive credentials
+  static const FlutterSecureStorage _secure = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
+
+  // Secure storage keys
+  static const String _kServerUrl = 'server_url';
+  static const String _kUsername = 'username';
+  static const String _kPassword = 'password';
+  static const String _kSourceUrl = 'source_url';
 
   /// Initialize Hive storage
   static Future<void> init() async {
@@ -16,29 +29,28 @@ class StorageService {
     await Hive.openBox<String>(_favoritesBox);
     await Hive.openBox(_settingsBox);
     await Hive.openBox<String>(_playlistsBox);
-    await Hive.openBox(_credentialsBox);
   }
 
-  // ─── Xtream Credentials ─────────────────────────────────────
+  // ─── Xtream Credentials (Secure Storage) ────────────────────
 
-  /// Save Xtream login credentials (for the refresh/update feature)
+  /// Save Xtream login credentials securely (Keychain / Keystore).
+  /// Also stores a non-sensitive "logged in" flag in Hive for fast startup.
   static Future<void> saveCredentials({
     required String serverUrl,
     required String username,
     required String password,
   }) async {
-    final box = Hive.box(_credentialsBox);
-    await box.put('server_url', serverUrl);
-    await box.put('username', username);
-    await box.put('password', password);
+    await _secure.write(key: _kServerUrl, value: serverUrl);
+    await _secure.write(key: _kUsername, value: username);
+    await _secure.write(key: _kPassword, value: password);
+    await Hive.box(_settingsBox).put('logged_in', true);
   }
 
   /// Get saved credentials, or null if none stored
-  static Map<String, String>? getCredentials() {
-    final box = Hive.box(_credentialsBox);
-    final serverUrl = box.get('server_url');
-    final username = box.get('username');
-    final password = box.get('password');
+  static Future<Map<String, String>?> getCredentials() async {
+    final serverUrl = await _secure.read(key: _kServerUrl);
+    final username = await _secure.read(key: _kUsername);
+    final password = await _secure.read(key: _kPassword);
     if (serverUrl == null || username == null || password == null) {
       return null;
     }
@@ -49,26 +61,26 @@ class StorageService {
     };
   }
 
-  /// Save the resolved M3U source URL (Xtream-built or direct)
+  /// Save the resolved M3U source URL (contains password, so kept secure)
   static Future<void> saveSourceUrl(String url) async {
-    final box = Hive.box(_credentialsBox);
-    await box.put('source_url', url);
+    await _secure.write(key: _kSourceUrl, value: url);
+    await Hive.box(_settingsBox).put('logged_in', true);
   }
 
   /// Get the saved source URL (used by the refresh button)
-  static String? getSourceUrl() {
-    final box = Hive.box(_credentialsBox);
-    return box.get('source_url');
+  static Future<String?> getSourceUrl() async {
+    return _secure.read(key: _kSourceUrl);
   }
 
   /// Clear saved credentials (logout)
   static Future<void> clearCredentials() async {
-    await Hive.box(_credentialsBox).clear();
+    await _secure.deleteAll();
+    await Hive.box(_settingsBox).delete('logged_in');
   }
 
-  /// Check if user is logged in
+  /// Check if user is logged in (synchronous, uses non-sensitive Hive flag)
   static bool isLoggedIn() {
-    return getSourceUrl() != null;
+    return Hive.box(_settingsBox).get('logged_in', defaultValue: false) == true;
   }
 
   // ─── Channels ───────────────────────────────────────────────
@@ -171,6 +183,6 @@ class StorageService {
     await Hive.box(_channelsBox).clear();
     await Hive.box<String>(_favoritesBox).clear();
     await Hive.box<String>(_playlistsBox).clear();
-    await Hive.box(_credentialsBox).clear();
+    await clearCredentials();
   }
 }
