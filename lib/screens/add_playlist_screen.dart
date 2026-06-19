@@ -52,7 +52,7 @@ class _AddPlaylistScreenState extends State<AddPlaylistScreen> {
 
   Future<void> _loadFromFile() async {
     try {
-      final result = await FilePicker.pickFiles(
+      final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['m3u', 'm3u8', 'txt'],
       );
