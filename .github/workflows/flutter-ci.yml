@@ -30,7 +30,10 @@ jobs:
         run: flutter --version
 
       - name: Generate platform folders
-        run: flutter create .
+        run: |
+          rm -rf android ios web linux macos windows
+          flutter create .
+          git checkout -- android/app/src/main/AndroidManifest.xml
 
       - name: Install dependencies
         run: flutter pub get
@@ -71,7 +74,10 @@ jobs:
           cache: true
 
       - name: Generate platform folders
-        run: flutter create .
+        run: |
+          rm -rf android ios web linux macos windows
+          flutter create .
+          git checkout -- android/app/src/main/AndroidManifest.xml
 
       - name: Install dependencies
         run: flutter pub get
