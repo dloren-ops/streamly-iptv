@@ -36,7 +36,9 @@ jobs:
           git checkout -- android/app/src/main/AndroidManifest.xml
 
       - name: Force compileSdk 36 for all modules
-        run: echo "android.compileSdk=36" >> android/gradle.properties
+        run: |
+          find android -name "build.gradle.kts" -exec grep -l "compileSdk" {} \; | xargs sed -i 's/compileSdk = [0-9]*/compileSdk = 36/g'
+          find android -name "build.gradle" -exec grep -l "compileSdk" {} \; | xargs sed -i 's/compileSdk [0-9]*/compileSdk 36/g; s/compileSdkVersion [0-9]*/compileSdkVersion 36/g'
 
       - name: Install dependencies
         run: flutter pub get
@@ -83,7 +85,9 @@ jobs:
           git checkout -- android/app/src/main/AndroidManifest.xml
 
       - name: Force compileSdk 36 for all modules
-        run: echo "android.compileSdk=36" >> android/gradle.properties
+        run: |
+          find android -name "build.gradle.kts" -exec grep -l "compileSdk" {} \; | xargs sed -i 's/compileSdk = [0-9]*/compileSdk = 36/g'
+          find android -name "build.gradle" -exec grep -l "compileSdk" {} \; | xargs sed -i 's/compileSdk [0-9]*/compileSdk 36/g; s/compileSdkVersion [0-9]*/compileSdkVersion 36/g'
 
       - name: Install dependencies
         run: flutter pub get
