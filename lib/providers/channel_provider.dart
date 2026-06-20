@@ -251,6 +251,7 @@ class ChannelProvider extends ChangeNotifier {
         password: password,
       );
       await _epgService.loadFromUrl(epgUrl);
+      if (_disposed) return;
       notifyListeners();
     } catch (_) {
       // EPG is optional; ignore failures silently

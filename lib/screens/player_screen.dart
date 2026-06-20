@@ -67,7 +67,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
     nativePlayer.setProperty('hwdec', 'auto');
     nativePlayer.setProperty('video-sync', 'audio');
     nativePlayer.setProperty('stream-buffer-size', '4MiB');
-    nativePlayer.setProperty('cache-pause-initial', 'yes');
+    nativePlayer.setProperty('cache-pause-initial', 'no');
     nativePlayer.setProperty('cache-pause-wait', '3');
     nativePlayer.setProperty('demuxer-lavf-o',
         'reconnect=1,reconnect_streamed=1,reconnect_delay_max=5');
