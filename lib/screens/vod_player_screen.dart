@@ -32,8 +32,16 @@ class _VodPlayerScreenState extends State<VodPlayerScreen> {
     ]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
-    _player = Player();
+    // Initialize player with optimized buffer configuration
+    _player = Player(
+      configuration: const PlayerConfiguration(
+        bufferSize: 50 * 1024 * 1024, // 50 MiB demuxer-max-bytes
+      ),
+    );
     _controller = VideoController(_player);
+
+    // Apply MPV options for aggressive caching and hardware decoding
+    _applyMpvOptions();
 
     _player.stream.buffering.listen((buffering) {
       if (mounted) setState(() => _isBuffering = buffering);
@@ -41,6 +49,24 @@ class _VodPlayerScreenState extends State<VodPlayerScreen> {
 
     _player.open(Media(widget.url));
     _autoHideControls();
+  }
+
+  /// Apply MPV options for aggressive caching, fast start, and hardware decoding.
+  ///
+  /// Note: We intentionally do NOT set 'vo' (e.g. vo=gpu) here. Flutter's
+  /// media_kit uses vo=null internally so that video frames are routed through
+  /// Flutter's texture-based rendering pipeline. Overriding vo to 'gpu' would
+  /// bypass Flutter's compositor and break video display.
+  void _applyMpvOptions() {
+    if (_player.platform is! NativePlayer) return;
+    final nativePlayer = _player.platform as NativePlayer;
+    nativePlayer.setProperty('cache', 'yes');
+    nativePlayer.setProperty('cache-secs', '30');
+    nativePlayer.setProperty('demuxer-max-bytes', '50MiB');
+    nativePlayer.setProperty('demuxer-readahead-secs', '5');
+    nativePlayer.setProperty('network-timeout', '30');
+    nativePlayer.setProperty('hwdec', 'auto');
+    nativePlayer.setProperty('video-sync', 'audio');
   }
 
   void _autoHideControls() {
