@@ -12,6 +12,7 @@ class ChannelProvider extends ChangeNotifier {
   final PlaylistService _playlistService = PlaylistService();
   final XtreamService _xtreamService = XtreamService();
   final EpgService _epgService = EpgService();
+  bool _disposed = false;
 
   // ─── State ──────────────────────────────────────────────────
   List<Channel> _allChannels = [];
@@ -136,6 +137,7 @@ class ChannelProvider extends ChangeNotifier {
 
       // Load EPG in the background with delay (don't compete with video playback)
       Future.delayed(const Duration(seconds: 5), () {
+        if (_disposed) return;
         _loadEpg(
           serverUrl: serverUrl,
           username: username,
@@ -185,6 +187,12 @@ class ChannelProvider extends ChangeNotifier {
     }
   }
 
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
   /// Logout and clear credentials
   Future<void> logout() async {
     await StorageService.clearCredentials();
@@ -210,6 +218,7 @@ class ChannelProvider extends ChangeNotifier {
     final creds = await StorageService.getCredentials();
     if (creds != null) {
       Future.delayed(const Duration(seconds: 5), () {
+        if (_disposed) return;
         _loadEpg(
           serverUrl: creds['server_url']!,
           username: creds['username']!,

@@ -51,8 +51,14 @@ class _VodPlayerScreenState extends State<VodPlayerScreen> {
     _autoHideControls();
   }
 
-  /// Apply MPV options for aggressive caching, fast start, and hardware decoding
+  /// Apply MPV options for aggressive caching, fast start, and hardware decoding.
+  ///
+  /// Note: We intentionally do NOT set 'vo' (e.g. vo=gpu) here. Flutter's
+  /// media_kit uses vo=null internally so that video frames are routed through
+  /// Flutter's texture-based rendering pipeline. Overriding vo to 'gpu' would
+  /// bypass Flutter's compositor and break video display.
   void _applyMpvOptions() {
+    if (_player.platform is! NativePlayer) return;
     final nativePlayer = _player.platform as NativePlayer;
     nativePlayer.setProperty('cache', 'yes');
     nativePlayer.setProperty('cache-secs', '30');
