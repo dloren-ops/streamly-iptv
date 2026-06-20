@@ -136,7 +136,7 @@ class ChannelProvider extends ChangeNotifier {
       _error = null;
 
       // Load EPG in the background with delay (don't compete with video playback)
-      Future.delayed(const Duration(seconds: 5), () {
+      Future.delayed(const Duration(seconds: 30), () {
         if (_disposed) return;
         _loadEpg(
           serverUrl: serverUrl,
@@ -217,7 +217,7 @@ class ChannelProvider extends ChangeNotifier {
     // Load EPG from saved credentials with delay to not compete with playback
     final creds = await StorageService.getCredentials();
     if (creds != null) {
-      Future.delayed(const Duration(seconds: 5), () {
+      Future.delayed(const Duration(seconds: 30), () {
         if (_disposed) return;
         _loadEpg(
           serverUrl: creds['server_url']!,
