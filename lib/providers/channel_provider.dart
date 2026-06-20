@@ -14,6 +14,7 @@ class ChannelProvider extends ChangeNotifier {
   final EpgService _epgService = EpgService();
 
   // ─── State ──────────────────────────────────────────────────
+  bool _disposed = false;
   List<Channel> _allChannels = [];
   List<Channel> _filteredChannels = [];
   List<String> _categories = ['All'];
@@ -56,6 +57,12 @@ class ChannelProvider extends ChangeNotifier {
       _epgService.getSchedule(channel.epgChannelId);
 
   // ─── Actions ────────────────────────────────────────────────
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
 
   /// Load playlist from URL
   Future<void> loadFromUrl(String url) async {
@@ -132,14 +139,27 @@ class ChannelProvider extends ChangeNotifier {
       );
       await StorageService.saveSourceUrl(m3uUrl);
 
-      _error = null;
-
-      // Load EPG in the background (don't block login)
-      _loadEpg(
+      // Save TS fallback URL for servers that don't support HLS (m3u8).
+      // Stored under 'source_url_ts' setting key for potential future use.
+      final m3uUrlTs = XtreamService.buildM3UUrlTs(
         serverUrl: serverUrl,
         username: username,
         password: password,
       );
+      await StorageService.saveSetting('source_url_ts', m3uUrlTs);
+
+      _error = null;
+
+      // Load EPG in the background after a 30-second delay to avoid
+      // consuming bandwidth when the user wants to start watching immediately
+      Future.delayed(const Duration(seconds: 30), () {
+        if (_disposed) return;
+        _loadEpg(
+          serverUrl: serverUrl,
+          username: username,
+          password: password,
+        );
+      });
 
       return true;
     } catch (e) {
@@ -204,14 +224,17 @@ class ChannelProvider extends ChangeNotifier {
     // Then refresh in the background
     await refresh();
 
-    // Load EPG from saved credentials
+    // Load EPG from saved credentials (deferred 30 seconds to save bandwidth)
     final creds = await StorageService.getCredentials();
     if (creds != null) {
-      _loadEpg(
-        serverUrl: creds['server_url']!,
-        username: creds['username']!,
-        password: creds['password']!,
-      );
+      Future.delayed(const Duration(seconds: 30), () {
+        if (_disposed) return;
+        _loadEpg(
+          serverUrl: creds['server_url']!,
+          username: creds['username']!,
+          password: creds['password']!,
+        );
+      });
     }
   }
 

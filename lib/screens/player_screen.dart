@@ -34,9 +34,14 @@ class _PlayerScreenState extends State<PlayerScreen> {
     ]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
-    // Initialize player
-    _player = Player();
+    // Initialize player with optimized buffer configuration
+    _player = Player(
+      configuration: PlayerConfiguration(bufferSize: 50 * 1024 * 1024),
+    );
     _controller = VideoController(_player);
+
+    // Apply MPV options for maximum playback smoothness
+    _applyMpvOptions();
 
     // Listen to player state
     _player.stream.buffering.listen((buffering) {
@@ -48,6 +53,24 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
     // Auto-hide controls after 3 seconds
     _autoHideControls();
+  }
+
+  /// Apply MPV options for aggressive caching and smooth HLS playback
+  void _applyMpvOptions() {
+    if (_player.platform is! NativePlayer) return;
+    final nativePlayer = _player.platform as NativePlayer;
+    nativePlayer.setProperty('cache', 'yes');
+    nativePlayer.setProperty('cache-secs', '60');
+    nativePlayer.setProperty('demuxer-max-bytes', '50MiB');
+    nativePlayer.setProperty('demuxer-readahead-secs', '10');
+    nativePlayer.setProperty('network-timeout', '30');
+    nativePlayer.setProperty('hwdec', 'auto');
+    nativePlayer.setProperty('video-sync', 'audio');
+    nativePlayer.setProperty('stream-buffer-size', '4MiB');
+    nativePlayer.setProperty('cache-pause-initial', 'yes');
+    nativePlayer.setProperty('cache-pause-wait', '3');
+    nativePlayer.setProperty('demuxer-lavf-o',
+        'reconnect=1,reconnect_streamed=1,reconnect_delay_max=5');
   }
 
   void _autoHideControls() {

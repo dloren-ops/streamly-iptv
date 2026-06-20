@@ -25,9 +25,20 @@ class XtreamService {
     return normalized;
   }
 
-  /// Build the M3U playlist URL from Xtream credentials
-  /// Format: http://host:port/get.php?username=X&password=Y&type=m3u_plus&output=ts
+  /// Build the M3U playlist URL from Xtream credentials (HLS format for adaptive streaming)
+  /// Format: http://host:port/get.php?username=X&password=Y&type=m3u_plus&output=m3u8
   static String buildM3UUrl({
+    required String serverUrl,
+    required String username,
+    required String password,
+  }) {
+    final base = normalizeUrl(serverUrl);
+    return '$base/get.php?username=$username&password=$password&type=m3u_plus&output=m3u8';
+  }
+
+  /// Build the M3U playlist URL with TS output as a fallback for servers that don't support HLS
+  /// Format: http://host:port/get.php?username=X&password=Y&type=m3u_plus&output=ts
+  static String buildM3UUrlTs({
     required String serverUrl,
     required String username,
     required String password,
