@@ -134,12 +134,14 @@ class ChannelProvider extends ChangeNotifier {
 
       _error = null;
 
-      // Load EPG in the background (don't block login)
-      _loadEpg(
-        serverUrl: serverUrl,
-        username: username,
-        password: password,
-      );
+      // Load EPG in the background with delay (don't compete with video playback)
+      Future.delayed(const Duration(seconds: 5), () {
+        _loadEpg(
+          serverUrl: serverUrl,
+          username: username,
+          password: password,
+        );
+      });
 
       return true;
     } catch (e) {
@@ -204,14 +206,16 @@ class ChannelProvider extends ChangeNotifier {
     // Then refresh in the background
     await refresh();
 
-    // Load EPG from saved credentials
+    // Load EPG from saved credentials with delay to not compete with playback
     final creds = await StorageService.getCredentials();
     if (creds != null) {
-      _loadEpg(
-        serverUrl: creds['server_url']!,
-        username: creds['username']!,
-        password: creds['password']!,
-      );
+      Future.delayed(const Duration(seconds: 5), () {
+        _loadEpg(
+          serverUrl: creds['server_url']!,
+          username: creds['username']!,
+          password: creds['password']!,
+        );
+      });
     }
   }
 

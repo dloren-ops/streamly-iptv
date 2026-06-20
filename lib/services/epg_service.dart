@@ -11,8 +11,8 @@ class EpgService {
 
   EpgService()
       : _dio = Dio(BaseOptions(
-          connectTimeout: const Duration(seconds: 10),
-          receiveTimeout: const Duration(seconds: 60),
+          connectTimeout: const Duration(seconds: 15),
+          receiveTimeout: const Duration(seconds: 300),
         ));
 
   /// In-memory guide: epgChannelId -> ordered list of programs

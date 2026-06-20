@@ -32,8 +32,16 @@ class _VodPlayerScreenState extends State<VodPlayerScreen> {
     ]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
-    _player = Player();
+    // Initialize player with optimized buffer configuration
+    _player = Player(
+      configuration: const PlayerConfiguration(
+        bufferSize: 50 * 1024 * 1024, // 50 MiB demuxer-max-bytes
+      ),
+    );
     _controller = VideoController(_player);
+
+    // Apply MPV options for aggressive caching and hardware decoding
+    _applyMpvOptions();
 
     _player.stream.buffering.listen((buffering) {
       if (mounted) setState(() => _isBuffering = buffering);
@@ -41,6 +49,18 @@ class _VodPlayerScreenState extends State<VodPlayerScreen> {
 
     _player.open(Media(widget.url));
     _autoHideControls();
+  }
+
+  /// Apply MPV options for aggressive caching, fast start, and hardware decoding
+  void _applyMpvOptions() {
+    final nativePlayer = _player.platform as NativePlayer;
+    nativePlayer.setProperty('cache', 'yes');
+    nativePlayer.setProperty('cache-secs', '30');
+    nativePlayer.setProperty('demuxer-max-bytes', '50MiB');
+    nativePlayer.setProperty('demuxer-readahead-secs', '5');
+    nativePlayer.setProperty('network-timeout', '30');
+    nativePlayer.setProperty('hwdec', 'auto');
+    nativePlayer.setProperty('video-sync', 'audio');
   }
 
   void _autoHideControls() {

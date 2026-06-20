@@ -34,9 +34,16 @@ class _PlayerScreenState extends State<PlayerScreen> {
     ]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
-    // Initialize player
-    _player = Player();
+    // Initialize player with optimized buffer configuration
+    _player = Player(
+      configuration: const PlayerConfiguration(
+        bufferSize: 50 * 1024 * 1024, // 50 MiB demuxer-max-bytes
+      ),
+    );
     _controller = VideoController(_player);
+
+    // Apply MPV options for aggressive caching and hardware decoding
+    _applyMpvOptions();
 
     // Listen to player state
     _player.stream.buffering.listen((buffering) {
@@ -48,6 +55,18 @@ class _PlayerScreenState extends State<PlayerScreen> {
 
     // Auto-hide controls after 3 seconds
     _autoHideControls();
+  }
+
+  /// Apply MPV options for aggressive caching, fast start, and hardware decoding
+  void _applyMpvOptions() {
+    final nativePlayer = _player.platform as NativePlayer;
+    nativePlayer.setProperty('cache', 'yes');
+    nativePlayer.setProperty('cache-secs', '30');
+    nativePlayer.setProperty('demuxer-max-bytes', '50MiB');
+    nativePlayer.setProperty('demuxer-readahead-secs', '5');
+    nativePlayer.setProperty('network-timeout', '30');
+    nativePlayer.setProperty('hwdec', 'auto');
+    nativePlayer.setProperty('video-sync', 'audio');
   }
 
   void _autoHideControls() {
